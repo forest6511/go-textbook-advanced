@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.24']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Find Go modules
+        id: find-modules
+        run: |
+          modules=$(find . -name 'go.mod' -not -path './vendor/*' | xargs -I{} dirname {} | sort)
+          echo "Found modules:"
+          echo "$modules"
+          echo "modules<<EOF" >> $GITHUB_OUTPUT
+          echo "$modules" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Build and vet all modules
+        run: |
+          modules=$(find . -name 'go.mod' -not -path './vendor/*' | xargs -I{} dirname {} | sort)
+          for mod in $modules; do
+            echo "=== Building $mod ==="
+            cd "$mod"
+            go build ./...
+            go vet ./...
+            cd "$GITHUB_WORKSPACE"
+          done
+
+      - name: Check formatting
+        run: |
+          modules=$(find . -name 'go.mod' -not -path './vendor/*' | xargs -I{} dirname {} | sort)
+          for mod in $modules; do
+            echo "=== Checking format: $mod ==="
+            cd "$mod"
+            if [ -n "$(gofmt -l .)" ]; then
+              echo "Files not formatted in $mod:"
+              gofmt -d .
+              exit 1
+            fi
+            cd "$GITHUB_WORKSPACE"
+          done
+
+      - name: Run tests
+        run: |
+          modules=$(find . -name 'go.mod' -not -path './vendor/*' | xargs -I{} dirname {} | sort)
+          for mod in $modules; do
+            echo "=== Testing $mod ==="
+            cd "$mod"
+            go test ./... -v -count=1
+            cd "$GITHUB_WORKSPACE"
+          done
