@@ -5,6 +5,22 @@
 *.so
 *.dylib
 
+# Chapter binaries (go build output)
+ch01-idiomatic-go/ch01-idiomatic-go
+ch02-generics/ch02-generics
+ch03-error-handling/ch03-error-handling
+ch04-design-patterns/ch04-design-patterns
+ch05-concurrency/ch05-concurrency
+ch06-package-design/ch06-package-design
+ch07-testing/ch07-testing
+ch08-performance/ch08-performance
+ch09-observability/ch09-observability
+ch10-database-api/ch10-database-api
+ch11-production/ch11-production
+ch12-grpc-microservice/ch12-grpc-microservice
+appendix-a-go126/appendix-a-go126
+appendix-b-review/appendix-b-review
+
 # Test binary
 *.test
 
