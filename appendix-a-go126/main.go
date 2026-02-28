@@ -54,7 +54,6 @@ func parallelWork(tasks []int) []int {
 	results := make([]int, len(tasks))
 	var wg sync.WaitGroup
 	for i, t := range tasks {
-		i, t := i, t
 		wg.Go(func() {
 			results[i] = t * t
 		})
